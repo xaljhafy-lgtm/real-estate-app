@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عقارات عدن</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; }
+        
+        /* الهيدر العلوي */
+        header { background: #1e293b; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .logo-area { display: flex; align-items: center; gap: 10px; background: #fbbf24; color: #0f172a; padding: 8px 14px; border-radius: 12px; font-weight: bold; }
+        .top-btns { display: flex; gap: 8px; }
+        .badge-btn { background: #334155; color: #cbd5e1; border: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .badge-btn.active { background: #fbbf24; color: #0f172a; }
+
+        /* شريط التنقل الثاني */
+        .nav-tabs { background: #1e293b; display: flex; justify-content: space-around; padding: 10px 0; border-bottom: 1px solid #334155; }
+        .nav-item { color: #94a3b8; font-size: 13px; text-align: center; cursor: pointer; }
+        .nav-item.active { color: #fbbf24; font-weight: bold; }
+
+        /* قسم الفلاتر والبحث */
+        .filter-section { background: #1e293b; margin: 15px; padding: 15px; border-radius: 16px; border: 1px solid #334155; }
+        .search-box { display: flex; align-items: center; background: #0f172a; border: 1px solid #475569; border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; }
+        .search-box input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 14px; text-align: right; }
+        
+        /* تدرج المديريات */
+        .districts { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; margin-top: 10px; }
+        .district-pill { background: #334155; color: #cbd5e1; padding: 6px 14px; border-radius: 20px; font-size: 13px; white-space: nowrap; cursor: pointer; }
+        .district-pill.active { background: #fbbf24; color: #0f172a; font-weight: bold; }
+
+        /* محتوى البطاقات */
+        .content { padding: 0 15px 20px 15px; max-width: 600px; margin: 0 auto; }
+        .results-count { font-size: 13px; color: #94a3b8; margin-bottom: 12px; text-align: right; }
+        
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; overflow: hidden; margin-bottom: 15px; }
+        .card-img { height: 160px; background: #334155; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px; position: relative; }
+        .card-tag { position: absolute; top: 10px; right: 10px; background: rgba(15, 23, 42, 0.85); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 12px; }
+        .card-body { padding: 12px; text-align: right; }
+        .card-body h3 { color: #f8fafc; font-size: 16px; margin: 0 0 6px 0; }
+        .card-body p { color: #94a3b8; font-size: 13px; margin: 4px 0; }
+        .price { color: #34d399; font-weight: bold; font-size: 15px; margin-top: 8px; }
+        .whatsapp-btn { display: block; background: #25d366; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <span>عقارات عدن</span> 🏢
+        </div>
+        <div class="top-btns">
+            <button class="badge-btn">3D تفاعلي</button>
+            <button class="badge-btn active">ر.س</button>
+        </div>
+    </header>
+
+    <div class="nav-tabs">
+        <div class="nav-item">🗺️ الخريطة</div>
+        <div class="nav-item active">🏠 العقارات</div>
+        <div class="nav-item">🛡️ لوحة الدلال</div>
+    </div>
+
+    <div class="filter-section">
+        <div class="search-box">
+            <input type="text" placeholder="ابحث عن عقار في عدن (مثال: شقة في الشيخ عثمان)...">
+            <span>🔍</span>
+        </div>
+        
+        <div class="districts">
+            <div class="district-pill active">الكل</div>
+            <div class="district-pill">خور مكسر</div>
+            <div class="district-pill">المعلا</div>
+            <div class="district-pill">كريتر</div>
+            <div class="district-pill">الشيخ عثمان</div>
+            <div class="district-pill">المنصورة</div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="results-count">تم العثور على 3 عقارات متاحة في عدن</div>
+
+        <div class="card">
+            <div class="card-img">
+                <span class="card-tag">للإيجار (شهري)</span>
+                صورة العقار الفاخر
+            </div>
+            <div class="card-body">
+                <h3>شقة فاخرة في الشيخ عثمان</h3>
+                <p>3 غرف وصالة، تشطيب ديلوكس قريبة من الشارع العام والخدمات.</p>
+                <div class="price">150,000 ريال</div>
+                <a href="https://wa.me/967780254954" class="btn whatsapp-btn" target="_blank">تواصل عبر واتساب</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img">
+                <span class="card-tag">للبيع (تتمليك)</span>
+                صورة الأرض التجارية
+            </div>
+            <div class="card-body">
+                <h3>أرض تجارية في المنصورة</h3>
+                <p>مساحة واسعة على خط رئيسي تناسب المشاريع الكبرى والمحلات.</p>
+                <div class="price">اتصل لمعرفة التفاصيل</div>
+                <a href="https://wa.me/967780254954" class="btn whatsapp-btn" target="_blank">تواصل عبر واتساب</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
