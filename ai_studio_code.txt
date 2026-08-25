@@ -1,0 +1,265 @@
+import React, { useState, useEffect } from 'react';
+import { Property, InquiryLead, Currency } from './types';
+import { INITIAL_PROPERTIES, INITIAL_LEADS } from './data/initialProperties';
+import { Navbar } from './components/Navbar';
+import { SmartMapView } from './components/SmartMapView';
+import { PropertyExplorer } from './components/PropertyExplorer';
+import { AdminDashboard } from './components/AdminDashboard';
+import { VirtualTour3D } from './components/VirtualTour3D';
+import { PropertyDetailsModal } from './components/PropertyDetailsModal';
+import { BookVisitModal } from './components/BookVisitModal';
+import { PropertyComparisonModal } from './components/PropertyComparisonModal';
+import { Footer } from './components/Footer';
+import { Sparkles, Star, ShieldCheck } from 'lucide-react';
+
+export default function App() {
+  const [properties, setProperties] = useState<Property[]>(() => {
+    const saved = localStorage.getItem('aden_real_estate_properties');
+    if (saved) {
+      try {
+        const parsed: Property[] = JSON.parse(saved);
+        return parsed.map((p) => ({
+          ...p,
+          brokerPhone: p.brokerPhone === '+967770123456' ? '+967780254954' : (p.brokerPhone || '+967780254954'),
+          brokerWhatsapp: p.brokerWhatsapp === '+967770123456' ? '+967780254954' : (p.brokerWhatsapp || '+967780254954'),
+        }));
+      } catch (e) {
+        console.error('Failed to parse properties from localStorage', e);
+      }
+    }
+    return INITIAL_PROPERTIES;
+  });
+
+  const [leads, setLeads] = useState<InquiryLead[]>(() => {
+    const saved = localStorage.getItem('aden_real_estate_leads');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse leads from localStorage', e);
+      }
+    }
+    return INITIAL_LEADS;
+  });
+
+  const [currency, setCurrency] = useState<Currency>(() => {
+    const saved = localStorage.getItem('aden_real_estate_currency');
+    return (saved as Currency) || 'USD';
+  });
+
+  const [currentView, setCurrentView] = useState<'map' | 'grid' | 'admin'>('map');
+  const [active3DTourProperty, setActive3DTourProperty] = useState<Property | null>(null);
+  const [activeDetailsProperty, setActiveDetailsProperty] = useState<Property | null>(null);
+  const [activeBookingProperty, setActiveBookingProperty] = useState<Property | null>(null);
+  const [selectedMapProperty, setSelectedMapProperty] = useState<Property | null>(null);
+  const [comparisonList, setComparisonList] = useState<string[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('aden_real_estate_properties', JSON.stringify(properties));
+  }, [properties]);
+
+  useEffect(() => {
+    localStorage.setItem('aden_real_estate_leads', JSON.stringify(leads));
+  }, [leads]);
+
+  useEffect(() => {
+    localStorage.setItem('aden_real_estate_currency', currency);
+  }, [currency]);
+
+  const handleAddProperty = (newProp: Property) => {
+    setProperties((prev) => [newProp, ...prev]);
+  };
+
+  const handleUpdateProperty = (updatedProp: Property) => {
+    setProperties((prev) =>
+      prev.map((p) => (p.id === updatedProp.id ? updatedProp : p))
+    );
+  };
+
+  const handleDeleteProperty = (id: string) => {
+    if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا العقار من المنصة؟')) {
+      setProperties((prev) => prev.filter((p) => p.id !== id));
+      if (selectedMapProperty?.id === id) setSelectedMapProperty(null);
+    }
+  };
+
+  const handleAddLead = (newLead: InquiryLead) => {
+    setLeads((prev) => [newLead, ...prev]);
+  };
+
+  const handleUpdateLeadStatus = (
+    leadId: string,
+    status: 'new' | 'contacted' | 'visited' | 'closed'
+  ) => {
+    setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, status } : l))
+    );
+  };
+
+  const handleToggleCompare = (property: Property) => {
+    setComparisonList((prev) => {
+      if (prev.includes(property.id)) {
+        return prev.filter((id) => id !== property.id);
+      }
+      if (prev.length >= 3) {
+        alert('يمكنك مقارنة حتى 3 عقارات كحد أقصى.');
+        return prev;
+      }
+      return [...prev, property.id];
+    });
+  };
+
+  const handleRemoveFromCompare = (propertyId: string) => {
+    setComparisonList((prev) => prev.filter((id) => id !== propertyId));
+  };
+
+  const comparedProperties = properties.filter((p) =>
+    comparisonList.includes(p.id)
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-['Cairo',sans-serif]">
+      <Navbar
+        currentView={currentView}
+        onChangeView={setCurrentView}
+        currency={currency}
+        onChangeCurrency={setCurrency}
+        compareCount={comparisonList.length}
+        onOpenCompare={() => setShowCompareModal(true)}
+      />
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+        {currentView === 'map' && (
+          <div className="space-y-6">
+            <SmartMapView
+              properties={properties}
+              selectedProperty={selectedMapProperty}
+              onSelectProperty={setSelectedMapProperty}
+              onOpen3DTour={(prop) => setActive3DTourProperty(prop)}
+              onOpenDetails={(prop) => setActiveDetailsProperty(prop)}
+              onBookVisit={(prop) => setActiveBookingProperty(prop)}
+              currency={currency}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                  <Sparkles className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">معاينة 3D واقعية 360°</h4>
+                  <p className="text-[11px] text-slate-500">تفقد زوايا وغرف العقار من مكانك قبل الزيارة</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold">
+                  <Star className="w-5 h-5 text-blue-600 fill-blue-600" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">نظام تقييم الأسعار بالنجوم</h4>
+                  <p className="text-[11px] text-slate-500">مؤشر لمقارنة سعر العقار بمتوسط السوق في عدن</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">تواصل مباشر مع الدلال المعتمد</h4>
+                  <p className="text-[11px] text-slate-500">واتساب واتصال فوري وتنسيق المعاينة الميدانية</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentView === 'grid' && (
+          <PropertyExplorer
+            properties={properties}
+            currency={currency}
+            onOpen3DTour={(prop) => setActive3DTourProperty(prop)}
+            onOpenDetails={(prop) => setActiveDetailsProperty(prop)}
+            onBookVisit={(prop) => setActiveBookingProperty(prop)}
+            comparisonList={comparisonList}
+            onToggleCompare={handleToggleCompare}
+          />
+        )}
+
+        {currentView === 'admin' && (
+          <AdminDashboard
+            properties={properties}
+            leads={leads}
+            currency={currency}
+            onAddProperty={handleAddProperty}
+            onUpdateProperty={handleUpdateProperty}
+            onDeleteProperty={handleDeleteProperty}
+            onUpdateLeadStatus={handleUpdateLeadStatus}
+            onOpen3DTour={(prop) => setActive3DTourProperty(prop)}
+          />
+        )}
+      </main>
+
+      {active3DTourProperty && (
+        <VirtualTour3D
+          property={active3DTourProperty}
+          onClose={() => setActive3DTourProperty(null)}
+          onBookVisit={(prop) => {
+            setActive3DTourProperty(null);
+            setActiveBookingProperty(prop);
+          }}
+        />
+      )}
+
+      {activeDetailsProperty && (
+        <PropertyDetailsModal
+          property={activeDetailsProperty}
+          currency={currency}
+          onClose={() => setActiveDetailsProperty(null)}
+          onOpen3DTour={(prop) => {
+            setActiveDetailsProperty(null);
+            setActive3DTourProperty(prop);
+          }}
+          onBookVisit={(prop) => {
+            setActiveDetailsProperty(null);
+            setActiveBookingProperty(prop);
+          }}
+        />
+      )}
+
+      {activeBookingProperty && (
+        <BookVisitModal
+          property={activeBookingProperty}
+          currency={currency}
+          onClose={() => setActiveBookingProperty(null)}
+          onSubmitLead={handleAddLead}
+        />
+      )}
+
+      {showCompareModal && (
+        <PropertyComparisonModal
+          properties={comparedProperties}
+          currency={currency}
+          onClose={() => setShowCompareModal(false)}
+          onRemoveFromCompare={handleRemoveFromCompare}
+          onOpen3DTour={(prop) => {
+            setShowCompareModal(false);
+            setActive3DTourProperty(prop);
+          }}
+          onOpenDetails={(prop) => {
+            setShowCompareModal(false);
+            setActiveDetailsProperty(prop);
+          }}
+        />
+      )}
+
+      <Footer
+        onSelectDistrict={() => {
+          setCurrentView('grid');
+        }}
+      />
+    </div>
+  );
+}
